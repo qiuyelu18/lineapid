@@ -44,7 +44,7 @@
         <h1 class="mb-3 fw-normal">Line (Line)</h1>
         <div class="mx-1 row justify-content-center">
             <ol class="col-auto text-start">
-                <li>打开iPhone/iPad的蓝色<strong>&nbsp AppStore &nbsp</strong>软件（请不要打开设置）</li>
+                <li>打开iPhone/iPad的蓝色<strong>&nbsp AppStore &nbsp</strong>软件（请不要在设置中登录）</li>
                 <li>右上角点击<strong>&nbsp 个人头像&nbsp </strong>进入账户，下拉到最底找到并点击<strong>&nbsp 退出登录&nbsp</strong></li>
                 <li><strong> &nbsp复制&nbsp</strong>本网站 共享账号和密码</li>
                 <li>点击登录，提示<strong> &nbspApple id安全&nbsp</strong>，请点击<strong> &nbsp其他选项-不升级&nbsp</strong></li>
@@ -76,6 +76,12 @@
             <div class="col-auto my-5" id="loading"><i aria-hidden="true" class="spinner-border me-5"></i> 加载最新账号信息
             </div>
         </div>
+        
+        <!-- 图片查看器 -->
+        <div class="image-viewer" id="imageViewer">
+            <span class="close-viewer" id="closeViewer">&times;</span>
+            <img id="viewerImage" src="" alt="放大查看">
+        </div>
     </main>
     <textarea id="copy" readonly="readonly" style="display: none;"></textarea>
     <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap/5.1.3/js/bootstrap.min.js"
@@ -87,7 +93,78 @@
     <script src="./src/data.min.js" type="application/javascript"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JWCME7N22C"></script>
     <script charset="utf-8" type="text/javascript">
-        $(document).ready(function () { function a() { o.push(arguments) } X(); window.o = window.o || []; a("js", new Date); a("config", "G-JWCME7N22C") });
+        $(document).ready(function () { 
+            function a() { o.push(arguments) } 
+            X(); 
+            window.o = window.o || []; 
+            a("js", new Date); 
+            a("config", "G-JWCME7N22C");
+            
+            // 折叠面板功能
+            const tutorialHeader = $("#tutorialHeader");
+            const tutorialContent = $("#tutorialContent");
+            const tutorialImg = $("#tutorialImg");
+            const loadingIndicator = $("#loadingIndicator");
+            const chevronIcon = tutorialHeader.find(".bi-chevron-down");
+            
+            // 预加载图片
+            const preloadImg = new Image();
+            preloadImg.src = tutorialImg.attr("src");
+            
+            // 图片加载完成时隐藏加载指示器
+            $(preloadImg).on('load', function() {
+                loadingIndicator.hide();
+                tutorialImg.show();
+            });
+            
+            // 折叠面板点击事件
+            tutorialHeader.on('click', function() {
+                tutorialContent.collapse('toggle');
+                
+                // 切换图标方向
+                if (tutorialContent.hasClass('show')) {
+                    chevronIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                } else {
+                    chevronIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                }
+                
+                // 首次打开时显示加载指示器
+                if (!tutorialContent.hasClass('show') && !preloadImg.complete) {
+                    loadingIndicator.show();
+                }
+            });
+            
+            // 监听折叠事件来更新图标
+            tutorialContent.on('shown.bs.collapse', function () {
+                chevronIcon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+            }).on('hidden.bs.collapse', function () {
+                chevronIcon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+            });
+            
+            // 图片点击放大查看
+            const imageViewer = $("#imageViewer");
+            const viewerImage = $("#viewerImage");
+            const closeViewer = $("#closeViewer");
+            
+            // 点击图片时打开查看器
+            tutorialImg.on('click', function() {
+                viewerImage.attr('src', $(this).attr('src'));
+                imageViewer.fadeIn();
+                $('body').css('overflow', 'hidden'); // 防止背景滚动
+            });
+            
+            // 点击关闭按钮或背景关闭查看器
+            closeViewer.on('click', function() {
+                imageViewer.fadeOut();
+                $('body').css('overflow', '');
+            });
+            
+            imageViewer.on('click', function(e) {
+                if (e.target === this) {
+                    imageViewer.fadeOut();
+                    $('body').css('overflow', '');
+                }
+            });
     </script>
 </body>
 
